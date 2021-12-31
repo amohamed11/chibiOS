@@ -1,0 +1,13 @@
+[package]
+name = "chibi_os"
+version = "0.1.0"
+edition = "2018"
+authors = ["Anas M. <mail@amohamed.ca>"]
+
+[profile.dev]
+panic = "abort" # disable stack unwinding on panic
+
+[profile.release]
+panic = "abort"
+
+[dependencies]
