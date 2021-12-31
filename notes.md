@@ -14,4 +14,12 @@ chibiOS follows Philipp Oppermann's fantastic [Writing an OS in Rust](https://os
 
 ## A Minimal Rust Kernel
 
-- 
+- On power on, the motherboard executes firmware code before booting up the OS kernel from disk. The two x86 firmwares are:
+  - BIOS (Basic Input/Output System): Legacy standard that runs in 16-bit (real mode) before booting up the OS.
+  - UEFI (Universial Extensible Firmware Interface): Modern standard that runs in 32-bit.
+- When booting up the OS, BIOS transfers control to the bootloard, a 512-byte exectuable stored in the disk's begining. Larger bootloaders are split into smaller 512-byte chunks which sequentially load each other.
+- For complete target system configuration we use `x86_64-chibi_os.json` to define our target [source](https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#build-std).
+  - We add the option for disabling the redzone which is an optimization that allows functions *to temporarily use the 128 bytes below its stack frame* [source](https://os.phil-opp.com/red-zone/).
+  <img src="https://os.phil-opp.com/red-zone/red-zone.svg" />
+- Since our bare-metal target will not have a precompiled Rust compiler, the `core` library will not be available. To recompile the `core` library for our target system, we can use the `build-std` feature in cargo. Now the `core` library & its dependency `compiler_builtins` are both compiled on each build along our OS.
+- Lastly to avoid writing our own memory-intrinsic function `memset`, `memcpy`, `memcmp`, we simply enable the existing implementations that come with `compiler_builtins` by adding the `compiler_builtins-mem` cargo feature.
