@@ -12,3 +12,6 @@ chibiOS follows Philipp Oppermann's fantastic [Writing an OS in Rust](https://os
   - Bare-metal here refers to enviornment with no OS.
 - Tada, we have a minimal Rust binary that compiles for a bare-metal system target.
 
+## A Minimal Rust Kernel
+
+- 
