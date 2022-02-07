@@ -117,3 +117,30 @@ u32 | Reserved
 - In short, registers carry out very specific instructions with given values & addresses at the atomic (OS speaking) level. These instructions serve as the building blocks for greater abstractions.
 - There are various types of general registers, with each serving different purpose depending on the instruction set. The number of registers also vary by processor.
 - The most essential types (a larger list ([here](https://en.wikipedia.org/wiki/Processor_register#Types))) of registers are *address* and *data* registers. The first serves to hold addresses to the primary memory used by an instruction (such as a pointer to the run-time stack). The latter serves to hold the values (integers, floats, characters) used by an instructions.
+
+## Double Faults
+
+- Double faults can occur for multiple reasons. Typically it occurs following a series of two
+  exceptions going unhandled, such as a page fault leading to another page fault, divide by zero
+  fault followed by general-protection fault, etc.
+- A corrupted stack during an expection handler (say a failed page fault handling), can lead to
+  failed double fault, thus resulting in a triple fault. We want to avoid this as much as possible.
+- We can define as set of known valid stack using x86\_64 ability to switch to a predefine stack
+  from the *Interrupt Stack Table* (IST). The IST can hold pointers to 7 good stacks. 
+- The IST is part of a struture called *Task State Segment* (TSS), alongside a Privilege Stack
+  Table that is used to privilege level changes during exception handling.
+- To inform our CPU to use our TSS (which has our IST), we add it to the *Global Descriptor Table*
+
+## Handling Interrupts
+```
+                                    ____________             _____
+               Timer ------------> |            |           |     |
+               Keyboard ---------> | Interrupt  |---------> | CPU |
+               Other Hardware ---> | Controller |           |_____|
+               Etc. -------------> |____________|
+
+```
+
+- Interrupts are how the CPU is notified by atthaced hardware devices of events.
+- Since the 0-15 interrupt range is in-use for CPU execptions, we will use the 32-47 range for our
+  selected PIC (Programmable Interrupt Controller), the Intel 8259.

@@ -5,7 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use chibi_os::println;
+use chibi_os::{println, print};
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
@@ -17,14 +17,15 @@ pub extern "C" fn _start() -> ! {
     test_main();
 
     println!("It did not crash");
-    loop {}
+
+    chibi_os::hlt_loop();
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    chibi_os::hlt_loop();
 }
 
 #[cfg(test)]
