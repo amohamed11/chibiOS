@@ -13,7 +13,7 @@ SECTIONS
         *(.rodata .rodata.*)
     }
 
-    .data ALIGN(4) : {
+    .data ALIGN(8) : {
         *(.data .data.*)
     }
 
@@ -26,9 +26,4 @@ SECTIONS
 
     _kernel_end = .;
 
-    /DISCARD/ : {
-        *(.comment)
-        *(.note.*)
-        *(.eh_frame)
-    }
 }

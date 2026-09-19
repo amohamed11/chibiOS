@@ -22,17 +22,17 @@ pub const VGA_Color = enum(u8) {
 };
 
 fn getColorByte(fg: VGA_Color, bg: VGA_Color) u8 {
-    return @intFromEnum(fg) | @intFromEnum(bg) << 4;
+    return @as(u16, (@intFromEnum(fg) | @intFromEnum(bg) << 4));
 }
 
 fn getScreenEntry(char: u8, colorByte: u8) u16 {
-    return char | colorByte << 4;
+    return @as(u16, char) | (@as(u16, colorByte) << 8);
 }
 
 pub const Terminal = struct {
     row: usize = 0,
     column: usize = 0,
-    color: u8 = getColorByte(VGA_Color.Magenta, VGA_Color.Cyan),
+    color: u8 = getColorByte(VGA_Color.White, VGA_Color.Cyan),
     buffer: [*]volatile u16 = @ptrFromInt(VGA_MEMORY),
 
     pub fn setup(self: *Terminal) void {

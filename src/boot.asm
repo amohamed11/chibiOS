@@ -28,6 +28,8 @@ start:
     ; DL is preserved from BIOS boot drive
     int 0x13
 
+    jc halt
+
     ; 4. Load GDT
     lgdt [gdt_descriptor]
 
@@ -37,12 +39,17 @@ start:
     mov cr0, eax
 
     ; 6. Far jump to flush CPU pipeline into 32-bit mode
-    jmp 0x08:init_32
+    jmp CODE_SEG:init_32
+
+halt:
+    cli
+    hlt
+    jmp halt
 
 [bits 32]
 init_32:
     ; 7. Set 32-bit segment registers
-    mov ax, 0x10
+    mov ax, DATA_SEG
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -53,32 +60,38 @@ init_32:
     mov esp, 0x90000
     jmp 0x10000
 
+
 ; --- Global Descriptor Table (GDT) ---
 gdt_start:
     ; Null Descriptor (8 bytes)
     dd 0x0
     dd 0x0
 
+gdt_code:
     ; 32-bit Code Segment Descriptor (Selector 0x08)
     dw 0xffff           ; Limit (bits 0-15)
     dw 0x0000           ; Base (bits 0-15)
     db 0x00             ; Base (bits 16-23)
-    db 10011010b        ; Access: Present, Ring 0, Executable, Readable
-    db 11001111b        ; Flags: 4KB gran, 32-bit + Limit (bits 16-19)
+    db 0x9a        ; Access: Present, Ring 0, Executable, Readable
+    db 0xcf        ; Flags: 4KB gran, 32-bit + Limit (bits 16-19)
     db 0x00             ; Base (bits 24-31)
 
+gdt_data:
     ; 32-bit Data Segment Descriptor (Selector 0x10)
     dw 0xffff           ; Limit (bits 0-15)
     dw 0x0000           ; Base (bits 0-15)
     db 0x00             ; Base (bits 16-23)
-    db 10010010b        ; Access: Present, Ring 0, Writable
-    db 11001111b        ; Flags: 4KB gran, 32-bit + Limit (bits 16-19)
+    db 0x92        ; Access: Present, Ring 0, Writable
+    db 0xcf        ; Flags: 4KB gran, 32-bit + Limit (bits 16-19)
     db 0x00             ; Base (bits 24-31)
 gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
+
+CODE_SEG equ gdt_code - gdt_start
+DATA_SEG equ gdt_data - gdt_start
 
 ; --- Boot Signature ---
 times 510 - ($ - $$) db 0

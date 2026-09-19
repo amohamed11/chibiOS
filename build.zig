@@ -48,11 +48,9 @@ pub fn build(b: *std.Build) void {
     // 6. Run step: launch QEMU with disk.img
     const run_step = b.step("run", "Run the OS in QEMU");
     const qemu_cmd = b.addSystemCommand(&.{
-        "qemu-system-x86_64",
+        "qemu-system-i386",
         "-serial",
         "mon:stdio",
-        "-display",
-        "none",
         "-drive",
         "format=raw,file=zig-out/bin/disk.img",
     });
